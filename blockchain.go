@@ -47,7 +47,8 @@ func (b *Block) MineBlock(difficulty int) {
 }
 
 type Blockchain struct {
-	Blocks []*Block
+	Blocks    []*Block
+	Consensus *Consensus
 }
 
 func CreateGenesisBlock() *Block {
@@ -76,7 +77,11 @@ func (bc *Blockchain) AddBlock(data string, difficulty int) {
 
 	newBlock.MineBlock(difficulty)
 
-	bc.Blocks = append(bc.Blocks, newBlock)
+	if bc.Consensus.ProposeBlock(newBlock) {
+		bc.Blocks = append(bc.Blocks, newBlock)
+	} else {
+		fmt.Println("Block rejected by consensus")
+	}
 }
 
 func (bc *Blockchain) PrintBlockchain() {
@@ -91,14 +96,64 @@ func (bc *Blockchain) PrintBlockchain() {
 }
 
 func main() {
-	// Create the blockchain
-	blockchain := Blockchain{Blocks: []*Block{CreateGenesisBlock()}}
+	// Create the blockchain with consensus
+	blockchain := Blockchain{
+		Blocks:    []*Block{CreateGenesisBlock()},
+		Consensus: NewConsensus(6), // Example with 6 nodes
+	}
 
-	// Add Blocks
-	blockchain.AddBlock("First Block", 4)
-	blockchain.AddBlock("Second Block", 4)
-	blockchain.AddBlock("Third Block", 4)
+	// Simulate multiple nodes adding blocks
+	nodeData := []struct {
+		NodeID     int
+		BlockData  string
+		Difficulty int
+	}{
+		{NodeID: 1, BlockData: "I just woke up", Difficulty: 4},
+		{NodeID: 2, BlockData: "Kevin proposed a strong idea", Difficulty: 6},
+		{NodeID: 6, BlockData: "Third Block", Difficulty: 4},
+		{NodeID: 4, BlockData: "Fourth Block", Difficulty: 2},
+		{NodeID: 5, BlockData: "I am alarmed by the spending", Difficulty: 4},
+		{NodeID: 2, BlockData: "Sixth Block", Difficulty: 1},
+		{NodeID: 3, BlockData: "Seventh Block", Difficulty: 6},
+		{NodeID: 4, BlockData: "Eighth Block", Difficulty: 1},
+		{NodeID: 1, BlockData: "Ninth Block", Difficulty: 3},
+		{NodeID: 2, BlockData: "Tenth Block", Difficulty: 5},
+		{NodeID: 5, BlockData: "Eleventh Block", Difficulty: 2},
+		{NodeID: 3, BlockData: "Twelfth Block", Difficulty: 3},
+		{NodeID: 1, BlockData: "Thirteenth Block", Difficulty: 4},
+		{NodeID: 6, BlockData: "Fourteenth Block", Difficulty: 1},
+		{NodeID: 4, BlockData: "Fifteenth Block", Difficulty: 6},
+		{NodeID: 1, BlockData: "I just woke up", Difficulty: 4},
+		{NodeID: 2, BlockData: "Kevin proposed a strong idea", Difficulty: 6},
+		{NodeID: 6, BlockData: "Third Block", Difficulty: 4},
+		{NodeID: 4, BlockData: "Fourth Block", Difficulty: 2},
+		{NodeID: 5, BlockData: "I am alarmed by the spending", Difficulty: 4},
+		{NodeID: 2, BlockData: "Sixth Block", Difficulty: 1},
+		{NodeID: 3, BlockData: "Seventh Block", Difficulty: 6},
+		{NodeID: 4, BlockData: "Eighth Block", Difficulty: 1},
+		{NodeID: 1, BlockData: "Ninth Block", Difficulty: 3},
+		{NodeID: 2, BlockData: "Tenth Block", Difficulty: 5},
+		{NodeID: 5, BlockData: "Eleventh Block", Difficulty: 2},
+		{NodeID: 3, BlockData: "Twelfth Block", Difficulty: 3},
+		{NodeID: 1, BlockData: "Thirteenth Block", Difficulty: 4},
+		{NodeID: 6, BlockData: "Fourteenth Block", Difficulty: 1},
+		{NodeID: 4, BlockData: "Fifteenth Block", Difficulty: 6},
+		{NodeID: 2, BlockData: "Sixteenth Block", Difficulty: 2},
+		{NodeID: 4, BlockData: "Seventeenth Block", Difficulty: 3},
+		{NodeID: 5, BlockData: "Eighteenth Block", Difficulty: 5},
+		{NodeID: 6, BlockData: "Nineteenth Block", Difficulty: 4},
+		{NodeID: 5, BlockData: "Twentieth Block", Difficulty: 1},
+		{NodeID: 2, BlockData: "Sixteenth Block", Difficulty: 2},
+		{NodeID: 4, BlockData: "Seventeenth Block", Difficulty: 3},
+		{NodeID: 5, BlockData: "Eighteenth Block", Difficulty: 5},
+		{NodeID: 6, BlockData: "Nineteenth Block", Difficulty: 4},
+		{NodeID: 5, BlockData: "Twentieth Block", Difficulty: 1},
+	}
+
+	for _, data := range nodeData {
+		fmt.Printf("Node %d proposing block...\n", data.NodeID)
+		blockchain.AddBlock(data.BlockData, data.Difficulty)
+	}
 
 	blockchain.PrintBlockchain()
-
 }
